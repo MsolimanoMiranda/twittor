@@ -5,6 +5,8 @@ import (
 	"os"
 	"log"
 
+	"github.com/MsolimanoMiranda/twittor/middlew"
+	"github.com/MsolimanoMiranda/twittor/routers"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
@@ -13,6 +15,7 @@ import (
 func Manejadores(){
 
 		router := mux.NewRouter()
+		router.HandleFunc("/registro",middlew.ChequeoBD(routes.Registro)).Methods("POST")
 
 		PORT := os.Getenv("PORT")
 
