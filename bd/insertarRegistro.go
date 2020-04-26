@@ -4,9 +4,10 @@ package bd
 import (
 	"context"
 	"time"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	
 	"github.com/MsolimanoMiranda/twittor/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	
 )
 
 //InsertarRegistro funcion que perimite insentaar registro

@@ -5,8 +5,9 @@ import (
 	"context"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"github.com/MsolimanoMiranda/twittor/models"
+	"go.mongodb.org/mongo-driver/bson"
+	
 )
 
 // ChequeoYaExisteUsuario es la funcion que verifica que exista
