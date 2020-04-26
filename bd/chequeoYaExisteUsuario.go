@@ -9,7 +9,7 @@ import (
 	"github.com/MsolimanoMiranda/twittor/models"
 )
 
-
+// ChequeoYaExisteUsuario es la funcion que verifica que exista
 func ChequeoYaExisteUsuario(email string) (models.Usuario,bool,string){
 
 	ctx, cancel := context.WithTimeout(context.Background(),15*time.Second)

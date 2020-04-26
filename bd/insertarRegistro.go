@@ -9,7 +9,7 @@ import (
 	"github.com/MsolimanoMiranda/twittor/models"
 )
 
-
+//InsertarRegistro funcion que perimite insentaar registro
 func InsertarRegistro(u models.Usuario) (string,bool,error){
 
 	ctx, cancel := context.WithTimeout(context.Background(),15*time.Second)
