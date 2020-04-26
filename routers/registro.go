@@ -12,7 +12,7 @@ import (
 func Rgistro(w http.ResponseWriter,r *http.Request){
 
 	var t models.Usuario
-	err := json.NewDecoder(r.body).Decode(&t)
+	err := json.NewDecoder(r.Body).Decode(&t)
 
 	if err != nil {
 		http.Error(w,"Error en los datos recibidos "+err.Error(), 400)
@@ -39,7 +39,7 @@ func Rgistro(w http.ResponseWriter,r *http.Request){
 		http.Error(w,"Error al insertar el usuario"+err.Error(), 400)
 		return
 	}
-	if sattus == false {
+	if status == false {
 		http.Error(w,"No se ha logrado insertr el registro del Usuario", 400)
 		return
 	}
