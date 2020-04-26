@@ -9,7 +9,7 @@ import (
 )
 
 
-func Rgistro(w http.ResponseWriter,r *http.Request){
+func Registro(w http.ResponseWriter,r *http.Request){
 
 	var t models.Usuario
 	err := json.NewDecoder(r.Body).Decode(&t)
