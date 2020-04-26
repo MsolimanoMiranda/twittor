@@ -16,7 +16,7 @@ func InsertarRegistro(u models.Usuario) (string,bool,error){
 	defer cancel()
 
 	db := MongoCN.Database("twittor")
-	col := db.Database("usuarios")
+	col := db.Collection("usuarios")
 
 	u.Password,_ = EncriptarPassword(u.Password)
 
