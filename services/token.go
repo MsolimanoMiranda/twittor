@@ -3,9 +3,10 @@ package services
 import (
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/MsolimanoMiranda/twittor/models"
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 )
 
 /*Email valor de Email usado en todos los EndPoints */
@@ -27,6 +28,7 @@ func GenerarToken(t models.Usuario) (string, error) {
 		"ubicacion":        t.Ubicacion,
 		"sitioweb":         t.SitioWeb,
 		"_id":              t.ID.Hex(),
+		"exp":              time.Now().Add(time.Hour * 12).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
@@ -55,7 +57,7 @@ func ValidarToken(tk string) (*models.Claim, bool, string, error) {
 		return miClave, nil
 	})
 	if err == nil {
-	
+
 		return claims, true, IDUsuario, nil
 	}
 	if !tkn.Valid {

@@ -11,5 +11,7 @@ func UserRouters(router *mux.Router) {
 	s.HandleFunc("/login", middlew.ChequeoBD(usuarioController.LoginUsuario)).Methods("POST")
 	s.HandleFunc("/registro", middlew.ChequeoBD(middlew.ValidoJWT(usuarioController.RegistroUsuario))).Methods("POST")
 	s.HandleFunc("/perfil", middlew.ChequeoBD(middlew.ValidoJWT(usuarioController.VerPerfil))).Methods("GET")
+	s.HandleFunc("/lista", middlew.ChequeoBD(middlew.ValidoJWT(usuarioController.ListarUsuario))).Methods("GET")
+	s.HandleFunc("/modificarPerfil", middlew.ChequeoBD(middlew.ValidoJWT(usuarioController.ModificarPerfil))).Methods("POST")
 
 }

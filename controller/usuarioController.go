@@ -3,6 +3,7 @@ package usuarioController
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/MsolimanoMiranda/twittor/helpers"
 	"github.com/MsolimanoMiranda/twittor/models"
 	"github.com/MsolimanoMiranda/twittor/services"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
@@ -97,7 +99,8 @@ func LoginUsuario(w http.ResponseWriter, r *http.Request) {
 		usuario,
 		string(token),
 	}
-	helpers.ResponseObject([]interface{}{res}, w)
+
+	helpers.ResponseObject(res, w)
 
 	expirationTime := time.Now().Add(24 * time.Hour)
 	http.SetCookie(w, &http.Cookie{
@@ -121,7 +124,50 @@ func VerPerfil(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.ResponseObject([]interface{}{perfil}, w)
+	// helpers.ResponseObject([]interface{}{perfil}, w)
+	helpers.ResponseObject(perfil, w)
+
+}
+
+func ListarUsuario(w http.ResponseWriter, r *http.Request) {
+
+	usuarios, err := ListUser()
+	if err == false {
+		helpers.MessageResponse("Ocurrió un error al listar Usuarios ", w, http.StatusBadRequest)
+		return
+	}
+
+	// helpers.ResponseObject([]interface{}{perfil}, w)
+	helpers.ResponseObject(usuarios, w)
+
+}
+
+func ModificarPerfil(w http.ResponseWriter, r *http.Request) {
+
+	var t models.Usuario
+
+	err := json.NewDecoder(r.Body).Decode(&t)
+	if err != nil {
+		http.Error(w, "Datos Incorrectos "+err.Error(), 400)
+		return
+	}
+
+	var status bool
+
+	status, err = ModificoRegistro(t, services.IDUsuario)
+	log.Println(services.IDUsuario)
+	if err != nil {
+		helpers.MessageResponse("Ocurrión un error al intentar modificar el registro. Reintente nuevamente "+err.Error(), w, http.StatusBadRequest)
+		return
+	}
+
+	if status == false {
+		helpers.MessageResponse("No se ha logrado modificar el registro del usuario", w, http.StatusBadRequest)
+		return
+	}
+
+	helpers.MessageResponse("Se Modifico con exito", w, http.StatusCreated)
+
 }
 
 //InsertarRegistro funcion que perimite insentaar registro
@@ -209,4 +255,89 @@ func BuscoPerfil(ID string) (models.Usuario, error) {
 
 	return resultado, nil
 
+}
+
+func ListUser() ([]*models.Usuario, bool) {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	db := bd.MongoCN.Database("twittor")
+	col := db.Collection("usuarios")
+	var results []*models.Usuario
+
+	var incluir bool
+	cur, err := col.Find(ctx, bson.M{})
+
+	for cur.Next(ctx) {
+		var s models.Usuario
+		err := cur.Decode(&s)
+		if err != nil {
+			return results, false
+		}
+		incluir = true
+		if incluir == true {
+			s.Password = ""
+			s.Biografia = ""
+			s.SitioWeb = ""
+			s.Ubicacion = ""
+			s.Banner = ""
+			// s.Email = ""
+
+			results = append(results, &s)
+		}
+	}
+
+	err = cur.Err()
+	if err != nil {
+		return results, false
+	}
+	cur.Close(ctx)
+	return results, true
+}
+
+func ModificoRegistro(u models.Usuario, ID string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	db := bd.MongoCN.Database("twittor")
+	col := db.Collection("usuarios")
+
+	registro := make(map[string]interface{})
+	if len(u.Nombre) > 0 {
+		registro["nombre"] = u.Nombre
+	}
+	if len(u.Apellidos) > 0 {
+		registro["apellidos"] = u.Apellidos
+	}
+	registro["fechaNacimiento"] = u.FechaNacimiento
+	if len(u.Avatar) > 0 {
+		registro["avatar"] = u.Avatar
+	}
+	if len(u.Banner) > 0 {
+		registro["banner"] = u.Banner
+	}
+	if len(u.Biografia) > 0 {
+		registro["biografia"] = u.Biografia
+	}
+	if len(u.Ubicacion) > 0 {
+		registro["ubicacion"] = u.Ubicacion
+	}
+	if len(u.SitioWeb) > 0 {
+		registro["sitioWeb"] = u.SitioWeb
+	}
+
+	updtString := bson.M{
+		"$set": registro,
+	}
+
+	objID, _ := primitive.ObjectIDFromHex(ID)
+	filtro := bson.M{"_id": bson.M{"$eq": objID}}
+
+	_, err := col.UpdateOne(ctx, filtro, updtString)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
